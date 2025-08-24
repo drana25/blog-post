@@ -1,0 +1,266 @@
+
+
+
+<!DOCTYPE>
+<html>
+<head> 
+<title> My Simple Blog </title>
+<meta charset="UTF-8"/>
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0"/>
+<!--
+1. Technologies used 
+   1. HTML5(structure)
+   2. CSS2 (basic styling only)
+   3. Core/Vanilla Javascript (no libraries)
+2. WHAT THIS PAGE DOES
+   1. Type a Post Title and Post Content and then we click "Add Post"
+   2. Your post appears below with a timestamp and a Delete Button.
+   3. Click Delete to remove a specific post.
+
+
+-->
+
+<style> 
+                         /*==================================================
+                                        BASIC CSS (mostly CSS2)
+                          ====================================================
+                                 */
+/*Page defaults*/ 
+body{
+font-family:Arial,Helvetica,sans-serif;
+background:#f7f7f7;                   /*gentle light gray*/
+color:#222;                           /*dark text for contrast*/
+margin:0;                             /*remove default margin*/
+padding:0;                            /*remove default padding*/
+line-height:1.4                       /* easier to read lines*/
+}
+/*A centered fixed-width container using CSS2 techniques*/
+
+.container{
+  width:90%;
+  max-width:800px;
+  margin:20px auto;/*center using auto left / right margins*/
+  background: #fff;
+  border: 2px solid #3e3e3e; 
+  padding:15px;
+
+}
+/* Header styling*/
+header{
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+h1{
+  margin:0 0 5px;
+  font-size: 26px;
+}
+p.tagline{
+  margin:0 0 10px;
+  color:#666;
+}
+/* Form Area*/
+.form-section label{
+  display:block;
+  margin: 8px 0 8px;
+  font-weight: bold;
+}
+.text-input, .textarea-input{
+  width: 95%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px; 
+}
+.textarea-input{
+  height:120px;/*make the text area taller*/
+  resize:vertical; /* allow manual resize up/down*/
+}
+.actions{
+  margin-top:10px;
+}
+.btn{
+  background:#1e88e5;/* blue*/
+  color: #fff;
+  border: 0;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor:pointer;/*show hand cursor*/ 
+}
+.btn-secondary{
+  background:#777;/*gray button for secondary actions*/
+}
+
+.message{
+  margin-top:10px;
+  color:#b00020;/* reddish text for error*/
+  display:none;/*hidden by default*/
+}
+
+/*Posts List area*/
+.posts{
+  margin-top: 15px;
+  
+}
+/*A single post card*/
+.post{
+  border: 1px solid #e5e5e5;
+  background: #fcfcfc;
+  padding:12px;
+  margin: 0 0 12px;/*spacing between posts*/
+}
+.post-title{
+  margin: 0 0 6px 0;
+  font-size:18px;
+}
+.post-actions{
+  text-align:right; /*move the buttons to the right*/
+}
+.empty-state{
+  color:#555;
+  border:1px dashed #bbb;
+  background:#fafafa;
+  padding:12px;
+  margin-top: 22px;
+  font-style:italic;
+
+}
+</style>
+
+
+</head>
+
+
+<body>
+
+<div class="container"> 
+<!-- Page Header-->
+<header> 
+
+<h1> My Simple Blog </h1>
+<p class="tagline"> Add your thoughts below and delete them anytime.  </p>
+
+</header>
+
+<!-- Post Form -->
+<section class="form-section" 
+         aria-label="Create a new blog post"> 
+
+<!-- Label + Input for Title -->
+<label for="postTitle"> Post Title</label>
+<input id="postTitle" 
+       class="text-input"
+       type="text" 
+       placeholder="e.g.,My first blog post"
+/>
+<!-- Label + Textarea for content-->
+<label for="postContent" > Post Content
+</label>
+<textarea id="postContent" 
+          class="textarea-input" 
+          placeholder="Write something...">
+
+</textarea>
+<!-- ACTION BUTTONS-->
+<div class="actions"> 
+<button id="addBtn" 
+        class="btn" 
+        type="button">
+Add Post
+
+ </button>
+<button id="clearBtn" 
+        class="btn btn-secondary" 
+        type="button">
+Delete All Posts
+</button>
+
+<div id="message" 
+     class="message"> 
+</div>
+
+</div>
+
+
+</section>
+
+<!-- Posts List-->
+<section class="posts" 
+         aria-label="Blog Post Lists">
+
+<!-- This empty state message is shown only when there are no posts.-->
+<div id="emptyState" 
+     class="empty-state"> 
+No posts yet. Add your first one above!
+</div>
+
+<!-- New posts will be inserted here by JavaScript-->
+<div id="postsContainer">
+</div>
+
+ </section>
+
+</div>
+
+<script> 
+//=========================================================================================================
+//CORE JAVASCRIPT
+//=========================================================================================================
+//1. Get the reference to important element once
+var titleInput         = document.getElementById('postTitle');
+var contentInput       = document.getElementById("postContent");
+var addBtn             = document.getElementById('addBtn');
+var clearBtn           = document.getElementById('clearBtn');
+var messageBox         = document.getElementById('message');
+var postsContainer     = document.getElementById('postsContainer');
+var emptyState         = document.getElementById('emptyState');
+
+//2.Helper : Show a temporary message (for errors or tips)
+function showMessage(text){
+  messageBox.innerHTML = text;
+  messageBox.style.dislplay = 'block';
+//Hide after 2 secs
+
+  setTimeout (function(){
+    messageBox.style.display; none;
+} ,2000);
+
+}
+
+//3.Helper:
+//4.Add post button behaviour
+ addBtn.onclick = function(){
+    var title = titleInput.value();
+    var content = contentInput.value;
+    //Basic Validation so that we don't add empty posts
+    if(!title || !content){
+      showMessage("Hey you!!! Yes, YOU. Fill in BOTH the Title and Content")
+    return;//stop here if invalid
+   }
+//Create an Insert when you post at th top
+
+var newPost = createPostElement(title, content);
+if(postsContainer.firstChild){
+     postsContainer.insertBefore(newPost,postsContainer.firstChild);
+}else{
+    postsContainer.appendChild(newPost);
+}
+ //Clear fields for the next post 
+titleInput.value ='';
+contentInput.value ='';
+   
+}
+
+</script>
+
+
+
+
+
+
+</body>
+
+
+
+</html>
+
